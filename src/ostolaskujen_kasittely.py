@@ -40,7 +40,7 @@ def get_folder_and_file_information():
 
     return project_folder, invoices
 
-def sort_files(folder, files):
+def sort_files(parent_dir, files):
     try:
         for f in files:
             #Extract the base filename from the selected files.
@@ -59,6 +59,17 @@ def sort_files(folder, files):
 
             print("Lajitellaan ostolaskua: ")
             print(project_no, invoice_no)
+            print()
+
+            file_path = os.path.join(parent_dir, os.path.join(project_no, invoice_no))
+            
+            try:
+                os.makedirs(file_path, exist_ok=True)
+            except OSError as e:
+                print("Kansiota ei voida tehdä: ", file_path)
+
+            #Move files to destination folders
+            os.rename(f, os.path.join(file_path, fname))
 
     except Exception as e:
         print("Jotain meni pieleen...")
