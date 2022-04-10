@@ -27,11 +27,11 @@ def get_folder_and_file_information():
         project_folder = filedialog.askdirectory(parent=root, title="Valitse kansio, minne ostolaskut lajitellaan.")
         invoices = filedialog.askopenfilenames(parent=root, title="Valitse kuitatut ostolaskut kansiosta.")
     except OSError:
-        print("Something went from reading the file...")
+        print("================= Something went wrong reading the file... =================")
         exit()
 
     print()
-    print("Valittu kansio, johon ostolaskut lajitellaan: ")
+    print("=============== Valittu kansio johon ostolaskut lajitellaan: ===============")
     print(project_folder)
     print()
 
@@ -41,6 +41,18 @@ def get_folder_and_file_information():
     return project_folder, invoices
 
 def sort_files(parent_dir, files):
+    """
+    Sorts the invoices to their folders.
+
+    Parameters:
+    parent_dir: Selected folder where invoices are to be sorted.
+    files: Selected invoices to be sorted.
+  
+    Returns:
+    True if everything went allright.
+    False if not.
+    """
+
     try:
         for f in files:
             #Extract the base filename from the selected files.
@@ -53,26 +65,29 @@ def sort_files(parent_dir, files):
             #So pretty much first 3 numbers are the project number
             #and from there the next 5 numbers are the invoice number
             #the remaining numbers are not really relevant in this operation its just the nth invoice of the day and date formatted
-
             project_no = fname[:3]
             invoice_no = fname[3:8]
 
-            print("Lajitellaan ostolaskua: ")
+            print("========================== Lajitellaan ostolaskua: =========================")
             print(project_no, invoice_no)
             print()
 
             file_path = os.path.join(parent_dir, os.path.join(project_no, invoice_no))
             
+            #Make project folders to the destination folder
             try:
                 os.makedirs(file_path, exist_ok=True)
             except OSError as e:
-                print("Kansiota ei voida tehdä: ", file_path)
+                print("================================= FAILURES =================================")
+                print("_________________________ Kansiota ei voida tehdä: _________________________")
+                print(file_path)
 
             #Move files to destination folders
             os.rename(f, os.path.join(file_path, fname))
 
     except Exception as e:
-        print("Jotain meni pieleen...")
+        print("================================= FAILURES =================================")
+        print("__________________________ Jotain meni pieleen... __________________________")
         logging.error(traceback.format_exc())
         return False
 
@@ -82,14 +97,16 @@ def main():
     project_folder, invoices = get_folder_and_file_information()
     
     if sort_files(project_folder, invoices):
-        print("================================")
-        print("Ostolaskujen lajittelu onnistui.")
-        print("================================")
+        print()
+        print("================================= SUCCESS =================================")
+        print("_____________________ Ostolaskujen lajittelu onnistui _____________________")
+
 
     else:
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Ostolaskujen lajittelu ei onnistunut.")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print()
+        print("================================= FAILURES =================================")
+        print("___________________ Ostolaskujen lajittelu ei onnistunut ___________________")
+
     
 
 if __name__ == "__main__":
